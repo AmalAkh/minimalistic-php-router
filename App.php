@@ -1,9 +1,13 @@
 <?php
+include "abstractions/Router.php";
 /**
  * Main class for application
  */
-class App
+class App extends Router
 {
-    
+    function __construct()
+    {
+        
+    }
 }
 ?>
