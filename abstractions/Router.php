@@ -1,11 +1,12 @@
 <?php
+include "../utils/join-paths.php";
 class Router
 {
-    protected $path;
+    protected $path = "";
     private $handlers = [];
     function __construct($path)
     {
-        $this->path = $path;
+        $this->path = join_paths(str_replace($_SERVER["DOCUMENT_ROOT"],"",getcwd()),$path);
     }
     /**
      * @param string $method HTTP method
@@ -15,26 +16,37 @@ class Router
      */
     function route($method, $path, ...$handlers)
     {   
-        if(isset($handlers[$path]))
+        $path = join_paths($this->path, $path);
+        $method = strtoupper($method);
+        if(!isset($this->handlers[$path]))
         {
-            $handlers[$path] = [];
+            $this->handlers[$path] = [];
             
         }
-        if(isset($handlers[$path][$method]))
+        
+        if(!isset($handlers[$path][$method]))
         {
-            $handlers[$path][$method] = [];
+            $this->handlers[$path][$method] = [];
         }
+        
         foreach($handlers as $handler)
         {
-            array_push($handlers[$path][$method], $handler);
+            array_push($this->handlers[$path][$method], $handler);
         }
     }
 
     function run()
     {
-
-         
-    }
+       
+        if(!isset($this->handlers[$_SERVER["REQUEST_URI"]]) || !isset($this->handlers[$_SERVER["REQUEST_URI"]][$_SERVER["REQUEST_METHOD"]]))
+        {
+            http_response_code(404);
+        }
+        foreach($this->handlers[$_SERVER["REQUEST_URI"]][$_SERVER["REQUEST_METHOD"]] as $handler)
+        {
+            $handler();
+        }
+    }   
 
 }
 ?>
