@@ -65,7 +65,7 @@ class Router
      */
     function run()
     {
-        
+        var_dump($this->handlers);
         if(!isset($this->handlers[$_SERVER["REQUEST_URI"]]) || !isset($this->handlers[$_SERVER["REQUEST_URI"]][$_SERVER["REQUEST_METHOD"]]))
         {
             http_response_code(404);
