@@ -4,20 +4,22 @@ class Router
 {
     protected $path = "";
     private $handlers = [];
-    function __construct($path = "")
+    private $routers = [];
+    function __construct()
     {
-        $this->path = join_paths(str_replace($_SERVER["DOCUMENT_ROOT"],"", getcwd()),$path);
+        //$this->path = join_paths(str_replace($_SERVER["DOCUMENT_ROOT"],"", getcwd()),$path);
     }
+
     /**
      * @param string $method HTTP method
      * @param string $path path for the request
      * @param mixed[] $handlers handlers for the reqest
      * Adds new route
      */
-    function route($method, $path, ...$handlers)
+    function addRoute($method, $path, ...$handlers)
     {   
        
-        $path = join_paths($this->path, $path);
+     
         $method = strtoupper($method);
         if(!isset($this->handlers[$path]))
         {
@@ -35,44 +37,70 @@ class Router
             array_push($this->handlers[$path][$method], $handler);
         }
     }
+    function addRouter($path, $router)
+    {
+        if(!isset($this->routers[$path]))
+        {
+            $this->routers[$path] = [$router];
+        }else
+        {
+            array_push($this->routers[$path], $router);
+        }
+    }
     function get($path, ...$handlers)
     {
-        $this->route("GET", $path, ...$handlers);
+        $this->addRoute("GET", $path, ...$handlers);
     }
     function post($path, ...$handlers)
     {
-        $this->route("POST", $path, ...$handlers);
+        $this->addRoute("POST", $path, ...$handlers);
     }
     function patch($path, ...$handlers)
     {
-        $this->route("PATCH", $path, ...$handlers);
+        $this->addRoute("PATCH", $path, ...$handlers);
     }
     function put($path, ...$handlers)
     {
-        $this->route("PUT", $path, ...$handlers);
+        $this->addRoute("PUT", $path, ...$handlers);
     }
     function delete($path, ...$handlers)
     {
-        $this->route("DELETE", $path, ...$handlers);
+        $this->addRoute("DELETE", $path, ...$handlers);
     }
     function head($path, ...$handlers)
     {
-        $this->route("HEAD", $path, ...$handlers);
+        $this->addRoute("HEAD", $path, ...$handlers);
     }
     
     /**
      * Handle current route
      */
-    function run()
-    {
-        var_dump($this->handlers);
-        if(!isset($this->handlers[$_SERVER["REQUEST_URI"]]) || !isset($this->handlers[$_SERVER["REQUEST_URI"]][$_SERVER["REQUEST_METHOD"]]))
+    function run($prevPath)
+    { 
+      
+        $routerUsed = false;
+        foreach($this->routers as $path=>$routersList)
+        {
+            
+            if(strpos($prevPath, $path) == 0)
+            {
+                
+                foreach($routersList as $router)
+                {
+                    $routerUsed = true;
+                    $router->run(str_replace($path, "",$prevPath));
+                }
+            }
+        }
+       
+
+        if(!$routerUsed && ( !isset($this->handlers[$prevPath]) || !isset($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]])))
         {
             http_response_code(404);
             die("Path was not found");
             return;
         }
-        foreach($this->handlers[$_SERVER["REQUEST_URI"]][$_SERVER["REQUEST_METHOD"]] as $handler)
+        foreach($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]] as $handler)
         {
             $handler();
         }
