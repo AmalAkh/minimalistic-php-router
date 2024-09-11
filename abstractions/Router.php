@@ -91,19 +91,22 @@ class Router
                     $router->run(str_replace($path, "",$prevPath));
                 }
             }
+            
+        }
+        if(isset($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]]))
+        {
+            foreach($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]] as $handler)
+            {
+                $handler();
+            }
+        }else if(!$routerUsed)
+        {
+            header("HTTP/1.1 404 Not Found");
         }
        
-
-        if(!$routerUsed && ( !isset($this->handlers[$prevPath]) || !isset($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]])))
-        {
-            http_response_code(404);
-            die("Path was not found");
-            return;
-        }
-        foreach($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]] as $handler)
-        {
-            $handler();
-        }
+        
+        
+        
     }   
 
 }
