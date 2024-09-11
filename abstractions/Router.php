@@ -1,5 +1,7 @@
 <?php
 include "../utils/join-paths.php";
+include "../utils/correct-path.php";
+
 class Router
 {
     protected $path = "";
@@ -19,7 +21,7 @@ class Router
     function addRoute($method, $path, ...$handlers)
     {   
        
-     
+        $path = correct_path($path);
         $method = strtoupper($method);
         if(!isset($this->handlers[$path]))
         {
@@ -39,6 +41,7 @@ class Router
     }
     function addRouter($path, $router)
     {
+        $path = preg_replace("/\/\z/i", "", $path);
         if(!isset($this->routers[$path]))
         {
             $this->routers[$path] = [$router];
