@@ -2,7 +2,7 @@
 
 function correct_path($path)
 {
-    if(!preg_match("/\/\z/i", $path))
+    if(!preg_match("/\A\//i", $path))
     {
         $path = "/".$path;
     }

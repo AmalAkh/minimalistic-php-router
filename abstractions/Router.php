@@ -42,6 +42,7 @@ class Router
     function addRouter($path, $router)
     {
         $path = preg_replace("/\/\z/i", "", $path);
+       
         if(!isset($this->routers[$path]))
         {
             $this->routers[$path] = [$router];
@@ -82,6 +83,7 @@ class Router
     { 
       
         $routerUsed = false;
+       
         foreach($this->routers as $path=>$routersList)
         {
             
