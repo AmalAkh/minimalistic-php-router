@@ -87,27 +87,27 @@ class Router
      * Handle current route
      * @param string $prevPath - path part that was send from previous router 
      */
-    function run($prevPath)
+    protected function run($prevPath)
     { 
       
-        $routerUsed = false;
+        $routerExecuted = false;
      
         foreach($this->routers as $path=>$routersList)
         {
             
             if(strpos($prevPath, $path) == 0)
             {
-                
+                $routerExecuted = true;
                 foreach($routersList as $router)
                 {
-                    $routerUsed = true;
+                    
                     //remove the path of target router and pass it 
                     $router->run(remove_path_once($path, $prevPath));
                 }
             }
             
         }
-        
+        $handlerExecuted = false;
         if(isset($this->handlers[$_SERVER["REQUEST_METHOD"]]))
         {
             foreach($this->handlers[$_SERVER["REQUEST_METHOD"]] as $pathTemplate=>$handlers)
@@ -123,13 +123,16 @@ class Router
                     {                      
                         $handler($requestData);
                     }
+                    $handlerExecuted = true;
                 }
             }
-        }else if(!$routerUsed)
-        {
-            header("HTTP/1.1 404 Not Found");
         }
-       
+        if($handlerExecuted)
+        {
+            http_response_code(200);
+            die();
+        }
+        
         
         
         
