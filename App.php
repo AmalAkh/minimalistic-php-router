@@ -1,5 +1,7 @@
 <?php
 include "abstractions/Router.php";
+include "../utils/remove-path-once.php";
+
 /**
  * Main class for application
  */
@@ -7,13 +9,14 @@ class App extends Router
 {
     function __construct()
     {
-        $this->rootPath = join_paths(str_replace($_SERVER["DOCUMENT_ROOT"],"", getcwd()));
       
+        $this->rootPath = join_paths(remove_path_once($_SERVER["DOCUMENT_ROOT"], getcwd()));
+        //echo remove_path_once($_SERVER["DOCUMENT_ROOT"], getcwd());
     }
     public function run()
     {
         
-        parent::run(str_replace($this->rootPath, "", $_SERVER["REQUEST_URI"]));
+        parent::run(remove_path_once($this->rootPath, $_SERVER["REQUEST_URI"]));
     }
 }
 ?>

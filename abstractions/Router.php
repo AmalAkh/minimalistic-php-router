@@ -1,6 +1,8 @@
 <?php
 include "../utils/join-paths.php";
 include "../utils/correct-path.php";
+include "../utils/remove-path-once.php";
+
 
 class Router
 {
@@ -23,24 +25,25 @@ class Router
        
         $path = correct_path($path);
         $method = strtoupper($method);
-        if(!isset($this->handlers[$path]))
+        if(!isset($this->handlers[$method]))
         {
-            $this->handlers[$path] = [];
+            $this->handlers[$method] = [];
             
         }
         
-        if(!isset($handlers[$path][$method]))
+        if(!isset($handlers[$method][$path]))
         {
-            $this->handlers[$path][$method] = [];
+            $this->handlers[$method][$path] = [];
         }
         
         foreach($handlers as $handler)
         {
-            array_push($this->handlers[$path][$method], $handler);
+            array_push($this->handlers[$method][$path], $handler);
         }
     }
     function addRouter($path, $router)
     {
+        //remove / at the end of the router's path
         $path = preg_replace("/\/\z/i", "", $path);
        
         if(!isset($this->routers[$path]))
@@ -78,12 +81,13 @@ class Router
     
     /**
      * Handle current route
+     * @param string $prevPath - path part that was send from previous router 
      */
     function run($prevPath)
     { 
       
         $routerUsed = false;
-       
+     
         foreach($this->routers as $path=>$routersList)
         {
             
@@ -93,14 +97,16 @@ class Router
                 foreach($routersList as $router)
                 {
                     $routerUsed = true;
-                    $router->run(str_replace($path, "",$prevPath));
+                    //remove the path of target router and pass it 
+                    $router->run(remove_path_once($path, $prevPath));
                 }
             }
             
         }
-        if(isset($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]]))
+   
+        if(isset($this->handlers[$_SERVER["REQUEST_METHOD"]][$prevPath]))
         {
-            foreach($this->handlers[$prevPath][$_SERVER["REQUEST_METHOD"]] as $handler)
+            foreach($this->handlers[$_SERVER["REQUEST_METHOD"]][$prevPath] as $handler)
             {
                 $handler();
             }
