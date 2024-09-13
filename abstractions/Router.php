@@ -2,6 +2,10 @@
 include "../utils/join-paths.php";
 include "../utils/correct-path.php";
 include "../utils/remove-path-once.php";
+include "../utils/equal-path.php";
+include "../utils/get-path-params.php";
+
+
 
 
 class Router
@@ -103,12 +107,23 @@ class Router
             }
             
         }
-   
-        if(isset($this->handlers[$_SERVER["REQUEST_METHOD"]][$prevPath]))
+        
+        if(isset($this->handlers[$_SERVER["REQUEST_METHOD"]]))
         {
-            foreach($this->handlers[$_SERVER["REQUEST_METHOD"]][$prevPath] as $handler)
+            foreach($this->handlers[$_SERVER["REQUEST_METHOD"]] as $pathTemplate=>$handlers)
             {
-                $handler();
+           
+                if(equal_path($pathTemplate, $prevPath))
+                {
+                 
+                    $requestParams = get_path_params($pathTemplate, $prevPath);
+                   
+                    $requestData = ["request_params"=>$requestParams];
+                    foreach($handlers as $handler)
+                    {                      
+                        $handler($requestData);
+                    }
+                }
             }
         }else if(!$routerUsed)
         {

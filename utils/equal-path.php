@@ -2,9 +2,12 @@
 function equal_path($template, $path)
 {
     $template = str_replace("/", "\/", $template);
-    $regexTemplate = preg_replace("/\{[a-z0-9]+\}/", "[a-z0-9]+", $template);
+   // $path = str_replace("/", "\/", $path);
+
+    $regexTemplate = preg_replace("/\{.+\}/i", ".+", $template);
    
-    if(preg_match("/{$regexTemplate}\z/", $path))
+
+    if(preg_match("/{$regexTemplate}\z/i", $path))
     {
         return true;
     }
