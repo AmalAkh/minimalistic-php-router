@@ -1,9 +1,5 @@
 <?php
-include "../utils/join-paths.php";
-include "../utils/correct-path.php";
-include "../utils/remove-path-once.php";
-include "../utils/equal-path.php";
-include "../utils/get-path-params.php";
+
 
 
 

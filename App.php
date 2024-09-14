@@ -1,6 +1,7 @@
 <?php
-include "abstractions/Router.php";
-include "../utils/remove-path-once.php";
+
+
+
 
 /**
  * Main class for application
