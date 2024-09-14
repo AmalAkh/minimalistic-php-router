@@ -116,6 +116,7 @@ class Router
                 if(equal_path($pathTemplate, $prevPath))
                 {
                  
+                
                     $requestParams = get_path_params($pathTemplate, $prevPath);
                    
                     $requestData = ["request_params"=>$requestParams];
